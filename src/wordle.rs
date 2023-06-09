@@ -1,7 +1,7 @@
+use crate::solve::*;
+use crate::user_io::*;
 use std::collections::HashMap;
 use std::fs;
-use crate::user_io::*;
-use crate::solve::*;
 
 #[derive(Debug, Clone, Copy, PartialEq, Eq)]
 pub enum Color {
@@ -74,17 +74,17 @@ pub fn get_colors(word: &str, word_guessed: &str) -> [Color; 5] {
     colors
 }
 
-pub fn setup() -> (Vec<String>, Vec<String>, [Vec<char>; 5], HashMap<char, Vec<usize>>, Vec<char>) {
+pub fn setup() -> (
+    Vec<String>,
+    Vec<String>,
+    [Vec<char>; 5],
+    HashMap<char, Vec<usize>>,
+    Vec<char>,
+) {
     let contents = fs::read_to_string("allowed_words.txt").unwrap();
-    let dictionary: Vec<String> = contents.lines().map(|line| {String::from(line)}).collect();
+    let dictionary: Vec<String> = contents.lines().map(|line| String::from(line)).collect();
     let possible_words = dictionary.clone();
-    let mut possibilities: [Vec<char>; 5] = [
-        vec![],
-        vec![],
-        vec![],
-        vec![],
-        vec![]
-    ];
+    let mut possibilities: [Vec<char>; 5] = [vec![], vec![], vec![], vec![], vec![]];
     for i in &mut possibilities {
         for c in 'a'..='z' {
             i.push(c);
@@ -95,7 +95,18 @@ pub fn setup() -> (Vec<String>, Vec<String>, [Vec<char>; 5], HashMap<char, Vec<u
     (dictionary, possible_words, possibilities, green, yellow)
 }
 
-pub fn round(word_guessed: &str, word: Option<&str>, possibilities: &mut [Vec<char>; 5], possible_words: &mut Vec<String> , green: &mut HashMap<char, Vec<usize>>, yellow: &mut Vec<char>, debug: bool, show_optimal: bool, print_colored_word: bool, optimal_word_progress: bool) -> bool {
+pub fn round(
+    word_guessed: &str,
+    word: Option<&str>,
+    possibilities: &mut [Vec<char>; 5],
+    possible_words: &mut Vec<String>,
+    green: &mut HashMap<char, Vec<usize>>,
+    yellow: &mut Vec<char>,
+    debug: bool,
+    show_optimal: bool,
+    print_colored_word: bool,
+    optimal_word_progress: bool,
+) -> bool {
     let colors = if let Some(word) = word {
         let colors = get_colors(word, word_guessed);
         if print_colored_word {
@@ -119,7 +130,16 @@ pub fn round(word_guessed: &str, word: Option<&str>, possibilities: &mut [Vec<ch
         print_word(&word_guessed, &colors);
     };
     if show_optimal {
-        println!("Optimal word: {}", optimal_word(&possibilities, possible_words.clone(), &green, &yellow, optimal_word_progress));
+        println!(
+            "Optimal word: {}",
+            optimal_word(
+                &possibilities,
+                possible_words.clone(),
+                &green,
+                &yellow,
+                optimal_word_progress
+            )
+        );
     }
     false
 }

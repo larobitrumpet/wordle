@@ -1,11 +1,11 @@
-mod wordle;
 mod game;
+mod play;
 mod solve;
-mod user_io;
 mod test;
 mod thread_pool;
-mod play;
+mod user_io;
+mod wordle;
 
 pub use game::run;
-pub use test::run_tests;
 pub use play::play;
+pub use test::run_tests;

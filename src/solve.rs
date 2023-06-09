@@ -1,13 +1,15 @@
-use std::collections::HashMap;
-use std::thread::available_parallelism;
-use std::sync::mpsc;
-use indicatif::ProgressBar;
-use crate::wordle::Color;
-use crate::wordle::round;
 use crate::thread_pool::*;
+use crate::wordle::round;
+use crate::wordle::Color;
+use indicatif::ProgressBar;
+use std::collections::HashMap;
+use std::sync::mpsc;
+use std::thread::available_parallelism;
 
 fn index<T>(v: &Vec<T>, item: &T) -> Option<usize>
-    where T: PartialEq {
+where
+    T: PartialEq,
+{
     for (i, elem) in v.iter().enumerate() {
         if *elem == *item {
             return Some(i);
@@ -16,10 +18,16 @@ fn index<T>(v: &Vec<T>, item: &T) -> Option<usize>
     None
 }
 
-pub fn update_possibilities(possibilities: &mut [Vec<char>; 5], word: &str, colors: &[Color; 5], green: &mut HashMap<char, Vec<usize>>, yellow: &mut Vec<char>) {
+pub fn update_possibilities(
+    possibilities: &mut [Vec<char>; 5],
+    word: &str,
+    colors: &[Color; 5],
+    green: &mut HashMap<char, Vec<usize>>,
+    yellow: &mut Vec<char>,
+) {
     for (i, letter) in word.chars().enumerate() {
         match colors[i] {
-            Color::Green  => {
+            Color::Green => {
                 possibilities[i] = vec![];
                 possibilities[i].push(letter);
                 green
@@ -27,17 +35,15 @@ pub fn update_possibilities(possibilities: &mut [Vec<char>; 5], word: &str, colo
                     .and_modify(|s| {
                         s.push(i);
                     })
-                    .or_insert_with(|| {
-                        vec![i]
-                });
-            },
+                    .or_insert_with(|| vec![i]);
+            }
             Color::Yellow => {
                 if let Some(index) = index(&possibilities[i], &letter) {
                     possibilities[i].swap_remove(index);
                 }
                 yellow.push(letter);
-            },
-            Color::Black  => {},
+            }
+            Color::Black => {}
         }
     }
 
@@ -84,11 +90,24 @@ fn is_possible_word(possibilities: &[Vec<char>; 5], word: &str, yellow: &Vec<cha
     return true;
 }
 
-pub fn update_possible_words<'a>(possibilities: &[Vec<char>; 5], possible_words: Vec<String>, yellow: &Vec<char>) -> Vec<String> {
-    possible_words.into_iter().filter(|word| is_possible_word(possibilities, &word, yellow)).collect()
+pub fn update_possible_words<'a>(
+    possibilities: &[Vec<char>; 5],
+    possible_words: Vec<String>,
+    yellow: &Vec<char>,
+) -> Vec<String> {
+    possible_words
+        .into_iter()
+        .filter(|word| is_possible_word(possibilities, &word, yellow))
+        .collect()
 }
 
-pub fn optimal_word(possibilities: &[Vec<char>; 5], possible_words: Vec<String>, green: &HashMap<char, Vec<usize>>, yellow: &Vec<char>, progress: bool) -> String {
+pub fn optimal_word(
+    possibilities: &[Vec<char>; 5],
+    possible_words: Vec<String>,
+    green: &HashMap<char, Vec<usize>>,
+    yellow: &Vec<char>,
+    progress: bool,
+) -> String {
     let mut min_word = String::from("");
     let mut min_average_length: f64 = f64::MAX;
     let mut recievers = vec![];
@@ -106,10 +125,22 @@ pub fn optimal_word(possibilities: &[Vec<char>; 5], possible_words: Vec<String>,
             let mut total_length = 0;
             for simulated_actual_word in new_possible_words.clone() {
                 let mut new_possible_words = new_possible_words.clone();
-                round(&simulated_guessed_word, Some(&simulated_actual_word), &mut new_possibilities.clone(), &mut new_possible_words, &mut new_green.clone(), &mut new_yellow.clone(), false, false, false, false);
+                round(
+                    &simulated_guessed_word,
+                    Some(&simulated_actual_word),
+                    &mut new_possibilities.clone(),
+                    &mut new_possible_words,
+                    &mut new_green.clone(),
+                    &mut new_yellow.clone(),
+                    false,
+                    false,
+                    false,
+                    false,
+                );
                 total_length += new_possible_words.len();
             }
-            tx.send((total_length as f64) / (new_possible_words.len() as f64)).unwrap();
+            tx.send((total_length as f64) / (new_possible_words.len() as f64))
+                .unwrap();
         });
     }
     let progress_bar = if progress {

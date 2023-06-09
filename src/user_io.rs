@@ -1,5 +1,5 @@
-use std::io::{stdin, stdout, Write};
 use crate::wordle::Color;
+use std::io::{stdin, stdout, Write};
 
 // Gets a string input from the user
 fn get_input(prompt: &str) -> String {
@@ -45,9 +45,9 @@ pub fn get_word(dictionary: &Vec<String>) -> String {
 pub fn print_word(word: &str, colors: &[Color; 5]) {
     for (i, letter) in word.chars().enumerate() {
         match colors[i] {
-            Color::Green  => print!("\x1B[0;42m"),
+            Color::Green => print!("\x1B[0;42m"),
             Color::Yellow => print!("\x1B[0;43m"),
-            Color::Black  => print!("\x1B[0;40m"),
+            Color::Black => print!("\x1B[0;40m"),
         }
         print!("{}\x1B[0m", letter);
     }
@@ -73,7 +73,7 @@ pub fn get_user_colors() -> [Color; 5] {
                 _ => {
                     println!("That is not a valid color sequence");
                     continue 'input;
-                },
+                }
             }
         }
         break;
