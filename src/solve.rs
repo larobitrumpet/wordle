@@ -49,17 +49,17 @@ pub fn update_possibilities(
 
     for (i, letter) in word.chars().enumerate() {
         if let Color::Black = colors[i] {
-            if let Some(s) = green.get(&letter) {
+            if yellow.contains(&letter) {
+                if let Some(index) = index(&possibilities[i], &letter) {
+                    possibilities[i].swap_remove(index);
+                }
+            } else if let Some(s) = green.get(&letter) {
                 for j in 0..5 {
                     if !s.contains(&j) {
                         if let Some(index) = index(&possibilities[j], &letter) {
                             possibilities[j].swap_remove(index);
                         }
                     }
-                }
-            } else if yellow.contains(&letter) {
-                if let Some(index) = index(&possibilities[i], &letter) {
-                    possibilities[i].swap_remove(index);
                 }
             } else {
                 for j in 0..5 {
